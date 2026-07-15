@@ -47,10 +47,11 @@ exports.signup = async (req, res) => {
     const ipAddress = req.ip;
     const refreshToken = await generateRefreshToken(user._id, false, userAgent, ipAddress);
 
+    const isProduction = process.env.NODE_ENV === 'production';
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',   // 'none' required for cross-domain
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -112,10 +113,11 @@ exports.login = async (req, res) => {
     const refreshToken = await generateRefreshToken(user._id, rememberMe, userAgent, ipAddress);
     const cookieMaxAge = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
 
+    const isProduction = process.env.NODE_ENV === 'production';
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',   // 'none' required for cross-domain
       maxAge: cookieMaxAge,
     });
 

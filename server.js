@@ -9,15 +9,38 @@ const connectDB = require('./config/db');
 
 const app = express();
 
+// Trust Render/Heroku reverse proxy — required for rate-limit & IP detection
+app.set('trust proxy', 1);
+
 // Connect to MongoDB
 connectDB();
 
 // Security Middleware
 app.use(helmet({ crossOriginResourcePolicy: false }));
+
+// Support comma-separated CLIENT_URL e.g. "https://a.netlify.app,https://b.netlify.app"
+const clientUrls = (process.env.CLIENT_URL || '')
+  .split(',')
+  .map(u => u.trim())
+  .filter(Boolean);
+
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  ...clientUrls,
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // allow server-to-server / curl (no origin) and listed origins
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: origin "${origin}" not allowed`));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
@@ -33,8 +56,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// Logging (dev only)
-if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
+// Logging
+if (process.env.NODE_ENV !== 'test') app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
