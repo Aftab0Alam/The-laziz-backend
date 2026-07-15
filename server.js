@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 const connectDB = require('./config/db');
 
 const app = express();
@@ -27,6 +28,7 @@ const clientUrls = (process.env.CLIENT_URL || '')
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
+  'https://the-laziz.netlify.app',   // production frontend (hardcoded fallback)
   ...clientUrls,
 ].filter(Boolean);
 
@@ -74,10 +76,22 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ success: true, message: '🍽 Laziz Restaurant API is running!', timestamp: new Date().toISOString() });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
-});
+// ─── Serve React frontend in production ─────────────────────────
+const isProd = process.env.NODE_ENV === 'production';
+if (isProd) {
+  const publicDir = path.join(__dirname, 'public');
+  app.use(express.static(publicDir));
+
+  // All non-API routes → React app (handles client-side routing)
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(publicDir, 'index.html'));
+  });
+} else {
+  // Dev: plain 404 for unknown routes
+  app.use((req, res) => {
+    res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
+  });
+}
 
 // Global error handler
 app.use((err, req, res, next) => {
