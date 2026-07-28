@@ -76,26 +76,45 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ success: true, message: '🍽 Laziz Restaurant API is running!', timestamp: new Date().toISOString() });
 });
 
-// ─── Serve React frontend in production ─────────────────────────
-const isProd = process.env.NODE_ENV === 'production';
-if (isProd) {
-  const publicDir = path.join(__dirname, 'public');
+// ─── Serve React frontend ────────────────────────────────────────
+const publicDir = path.join(__dirname, 'public');
+const fs = require('fs');
+const indexHtml = path.join(publicDir, 'index.html');
+const hasBuild = fs.existsSync(indexHtml);
+
+if (hasBuild) {
+  // Serve built React assets (JS, CSS, images, etc.)
   app.use(express.static(publicDir));
 
-  // All non-API routes → React app (handles client-side routing)
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(publicDir, 'index.html'));
+  // SPA fallback — ALL non-API routes return index.html so
+  // client-side routing (React Router) works on hard refresh / back button
+  app.use((req, res, next) => {
+    // Skip actual API routes
+    if (req.path.startsWith('/api/')) return next();
+    res.sendFile(indexHtml);
   });
 } else {
-  // Dev: plain 404 for unknown routes
-  app.use((req, res) => {
-    res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
+  // No build present (pure dev) — return a helpful message for unknown routes
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api/')) return next();
+    res.status(200).send(`
+      <html><body style="font-family:sans-serif;padding:40px">
+        <h2>🍽 Laziz Restaurant — Dev Mode</h2>
+        <p>API server is running on port ${process.env.PORT || 5000}.</p>
+        <p>Open the Vite dev server at <strong>http://localhost:5173</strong> for the frontend.</p>
+      </body></html>
+    `);
   });
 }
 
-// Global error handler
+
+// Multer / upload error handler (catches file-size, type, cloudinary errors)
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  if (err && err.code && err.code.startsWith('LIMIT_')) {
+    return res.status(400).json({ success: false, message: `Upload error: ${err.message}` });
+  }
+  console.error('[Server Error]', err.message || err);
+  if (err.stack) console.error(err.stack);
   res.status(err.status || 500).json({ success: false, message: err.message || 'Internal server error' });
 });
 
