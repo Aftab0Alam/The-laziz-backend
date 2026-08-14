@@ -21,6 +21,15 @@ logs/
 # ─── Uploads (user-uploaded files / images) ──────────────────────
 uploads/
 
+# ─── Local MongoDB data ───────────────────────────────────────────
+mongodata/
+
+# ─── Old server build output ─────────────────────────────────────
+server/public/
+
+# ─── Root-level images (duplicate of client/public/images) ───────
+images/
+
 # ─── OS files ────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
