@@ -7,8 +7,8 @@ const Product = require('./models/Product');
 const Slider = require('./models/Slider');
 const Settings = require('./models/Settings');
 
-// Base URL for local images (served by Vite from /public/images/)
-const IMG = (filename) => `http://localhost:5173/images/${filename}`;
+// Base URL for local images — served by Express from client/public/images/
+const IMG = (filename) => `http://localhost:5000/images/${filename}`;
 
 const categories = [
   { name: 'Biryani', slug: 'biryani', description: 'Aromatic rice dishes', imageUrl: IMG('biryani 1_result.webp'), displayOrder: 1 },

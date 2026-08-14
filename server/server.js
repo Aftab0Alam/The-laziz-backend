@@ -8,6 +8,9 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const connectDB = require('./config/db');
 
+// Path to client public images folder (works in both dev and production)
+const CLIENT_IMAGES_DIR = path.join(__dirname, '..', 'client', 'public', 'images');
+
 const app = express();
 
 // Trust Render/Heroku reverse proxy — required for rate-limit & IP detection
@@ -77,6 +80,16 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ success: true, message: '🍽 Laziz Restaurant API is running!', timestamp: new Date().toISOString() });
 });
 
+// ─── Serve food images in ALL modes (dev + production) ──────────
+// This allows image URLs like http://localhost:5000/images/biryani.webp to work
+// without needing the Vite dev server running.
+app.use('/images', express.static(CLIENT_IMAGES_DIR, {
+  maxAge: '7d',
+  setHeaders: (res) => {
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  },
+}));
+
 // ─── Serve React frontend in production ─────────────────────────
 const isProd = process.env.NODE_ENV === 'production';
 if (isProd) {
@@ -88,8 +101,8 @@ if (isProd) {
     res.sendFile(path.join(publicDir, 'index.html'));
   });
 } else {
-  // Dev: plain 404 for unknown routes
-  app.use((req, res) => {
+  // Dev: plain 404 for unknown API routes
+  app.use('/api', (req, res) => {
     res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
   });
 }
