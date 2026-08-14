@@ -4,9 +4,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-.pnpm-store/
-.npm/
-.yarn/
 
 # ─── Environment variables ────────────────────────────────────────
 .env
@@ -14,49 +11,19 @@ pnpm-debug.log*
 !.env.example
 !.env.sample
 
-# ─── Build output ────────────────────────────────────────────────
-dist/
-build/
-server/public/
-.vite/
-.cache/
-.parcel-cache/
-
 # ─── Logs ────────────────────────────────────────────────────────
 logs/
 *.log
 
-# ─── MongoDB local data ──────────────────────────────────────────
-mongodata/
-
-# ─── Uploads / media (server-side stored files) ──────────────────
-server/uploads/
-images/
+# ─── Uploads (user-uploaded files / images) ──────────────────────
+uploads/
 
 # ─── OS files ────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 desktop.ini
-ehthumbs.db
 
 # ─── IDE / Editor ────────────────────────────────────────────────
 .vscode/
 .idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
 *.sw?
-
-<<<<<<< HEAD
-# ─── Coverage / testing ──────────────────────────────────────────
-coverage/
-.nyc_output/
-
-# ─── Misc ────────────────────────────────────────────────────────
-*.local
-.eslintcache
-.stylelintcache
-=======
-node_modules/
->>>>>>> 247ce2b (Stop tracking node_modules)
