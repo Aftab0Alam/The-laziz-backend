@@ -131,7 +131,7 @@ const HomePage = () => {
           <FeatureCard icon={UtensilsCrossed} title="100% Fresh"  sub="Made to Order"   color="#10B981" bg="#f0fdf4" />
         </div>
 
-        {/* TODAY'S OFFER — always visible, uses live data if available */}
+        {/* TODAY'S OFFER — always visible, always shows real products from backend */}
         <section className="cs-offer-section">
           <div className="cs-offer-banner">
             <div className="cs-blob cs-blob-1" />
@@ -141,18 +141,17 @@ const HomePage = () => {
             <div className="cs-offer-toprow">
               <span className="cs-offer-badge">
                 <span className="cs-fire">🔥</span>
-                {crossSellData?.badgeLabel || 'LIMITED TIME'}
+                {crossSellData?.badgeLabel || 'HOT DEALS'}
               </span>
               <button className="cs-view-all" onClick={() => navigate('/offers')}>View All →</button>
             </div>
 
-            {crossSellData?.discountLabel && (
+            {(crossSellData?.discountLabel) ? (
               <div className="cs-discount-pill">
                 <span className="cs-discount-amount">{crossSellData.discountLabel}</span>
                 <span className="cs-discount-off">OFF</span>
               </div>
-            )}
-            {!crossSellData?.discountLabel && (
+            ) : (
               <div className="cs-discount-pill">
                 <span className="cs-discount-amount">UP TO 50%</span>
                 <span className="cs-discount-off">OFF</span>
@@ -168,16 +167,23 @@ const HomePage = () => {
             </div>
           </div>
 
-          {/* Product scroll — only if crossSell is active with products */}
-          {(crossSellData?.isActive && (crossSellData?.productIds?.length > 0 || csLoading)) && (
-            <div className="cs-offer-products hide-scrollbar">
-              {csLoading
-                ? [...Array(4)].map((_, i) => <ProductCardSkeleton key={i} />)
-                : (crossSellData?.productIds || crossSellData?.products || []).map(p => (
-                    <ProductCard key={p._id} product={p} offerPrice={p.offerPrice} />
-                  ))}
-            </div>
-          )}
+          {/* Real products — crossSell products if active, else best sellers as fallback */}
+          <div className="cs-offer-products hide-scrollbar">
+            {csLoading || bsLoading
+              ? [...Array(4)].map((_, i) => <ProductCardSkeleton key={i} />)
+              : (() => {
+                  const csProducts = crossSellData?.isActive
+                    ? (crossSellData?.productIds || crossSellData?.products || [])
+                    : [];
+                  const displayProducts = csProducts.length > 0
+                    ? csProducts
+                    : (bestSellersData || []).slice(0, 8);
+                  return displayProducts.map(p => (
+                    <ProductCard key={p._id} product={p} offerPrice={p.offerPrice || null} />
+                  ));
+                })()
+            }
+          </div>
 
           <div style={{ padding: '0 16px 20px' }}>
             <button className="cs-grab-btn" onClick={() => navigate('/offers')}>
