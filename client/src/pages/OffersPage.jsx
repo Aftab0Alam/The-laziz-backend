@@ -6,6 +6,7 @@ import BottomNav from '../components/Layout/BottomNav';
 import api from '../utils/api';
 import useCartStore from '../store/cartStore';
 import toast from 'react-hot-toast';
+import { getImageUrl } from '../utils/helpers';
 
 /* ── Product Card ── */
 const OfferProductCard = ({ product, offerPrice }) => {
@@ -32,7 +33,7 @@ const OfferProductCard = ({ product, offerPrice }) => {
     <div className="op-card">
       <div className="op-img-wrap">
         {product.imageUrl
-          ? <img src={product.imageUrl} alt={product.name} loading="lazy" />
+          ? <img src={getImageUrl(product.imageUrl)} alt={product.name} loading="lazy" />
           : <div className="op-img-ph">🍽</div>
         }
         {hasDiscount && <div className="op-discount-badge">{discountPct}% OFF</div>}

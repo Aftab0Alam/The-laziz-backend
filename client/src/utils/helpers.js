@@ -65,19 +65,24 @@ export const isRestaurantOpen = (settings) => {
 };
 
 /**
- * Fixes image URLs that were seeded with localhost:5000.
- * In production, replaces localhost origin with the real backend URL.
+ * Fixes image URLs seeded with localhost:5000.
+ * - In production (Render): images live in client/public/images → served by the
+ *   frontend static site at the same origin, so we swap localhost for window.location.origin.
+ * - In local dev: localhost URLs work as-is (served by the local Express server).
  */
-const BACKEND_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+const IS_PROD = !((import.meta.env.VITE_API_URL || '').includes('localhost'));
 
 export const getImageUrl = (url) => {
   if (!url) return '';
-  // If it's already a full external URL (Cloudinary, etc.), return as-is
-  if (url.startsWith('https://') && !url.includes('localhost')) return url;
-  // Replace localhost:5000 (or any localhost origin) with the real backend
-  if (url.includes('localhost')) {
-    return url.replace(/https?:\/\/localhost:\d+/, BACKEND_URL);
+  // Already an external URL (Cloudinary, etc.) — no change needed
+  if (!url.includes('localhost')) return url;
+  // In production: images are in dist/images served by the frontend static site
+  if (IS_PROD && typeof window !== 'undefined') {
+    // Extract just the path after the origin, e.g. /images/biryani.webp
+    const path = url.replace(/https?:\/\/localhost:\d+/, '');
+    return `${window.location.origin}${path}`;
   }
+  // In local dev: keep localhost URL as-is
   return url;
 };
 
