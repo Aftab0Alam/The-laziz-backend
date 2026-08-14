@@ -28,7 +28,8 @@ const clientUrls = (process.env.CLIENT_URL || '')
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://the-laziz.netlify.app',   // production frontend (hardcoded fallback)
+  'https://the-laziz.netlify.app',          // Netlify frontend (fallback)
+  'https://the-laziz-frontend.onrender.com', // Render frontend
   ...clientUrls,
 ].filter(Boolean);
 
