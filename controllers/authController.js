@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const Order = require('../models/Order');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const User = require('../models/User');
@@ -325,6 +326,103 @@ exports.getFavourites = async (req, res) => {
     return res.status(200).json({ success: true, data: { favourites: user.favourites } });
   } catch (error) {
     console.error(error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// UPDATE PROFILE (name, phone, dateOfBirth, gender)
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, phone, dateOfBirth, gender } = req.body;
+    const updates = {};
+    if (name !== undefined) {
+      if (name.trim().length < 2) return res.status(400).json({ success: false, message: 'Name must be at least 2 characters' });
+      updates.name = name.trim();
+    }
+    if (phone !== undefined) {
+      // Check phone uniqueness (excluding current user)
+      const existing = await User.findOne({ phone: phone.trim(), _id: { $ne: req.user._id } });
+      if (existing) return res.status(409).json({ success: false, message: 'Phone number already in use' });
+      updates.phone = phone.trim();
+    }
+    if (dateOfBirth !== undefined) updates.dateOfBirth = dateOfBirth ? new Date(dateOfBirth) : null;
+    if (gender !== undefined) updates.gender = gender;
+
+    const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).select('-passwordHash');
+    return res.status(200).json({ success: true, message: 'Profile updated', data: { user } });
+  } catch (error) {
+    console.error('updateProfile error:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// UPLOAD AVATAR
+exports.uploadAvatar = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ success: false, message: 'No image uploaded' });
+
+    const cloudinary = require('../config/cloudinary');
+
+    // Delete old avatar if exists
+    const currentUser = await User.findById(req.user._id);
+    if (currentUser.cloudinaryPublicId) {
+      try { await cloudinary.uploader.destroy(currentUser.cloudinaryPublicId); } catch {}
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { profileImageUrl: req.file.path, cloudinaryPublicId: req.file.filename },
+      { new: true }
+    ).select('-passwordHash');
+
+    return res.status(200).json({ success: true, message: 'Avatar updated', data: { user } });
+  } catch (error) {
+    console.error('uploadAvatar error:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// CHANGE PASSWORD
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Current and new password are required' });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 8 characters' });
+    }
+
+    const user = await User.findById(req.user._id);
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+
+    user.passwordHash = newPassword; // pre-save hook will hash it
+    await user.save();
+
+    return res.status(200).json({ success: true, message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('changePassword error:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// GET USER STATS (order count + favourite count)
+exports.getUserStats = async (req, res) => {
+  try {
+    const [orderCount, user] = await Promise.all([
+      Order.countDocuments({ userId: req.user._id }),
+      User.findById(req.user._id).select('favourites'),
+    ]);
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalOrders: orderCount,
+        totalFavourites: user?.favourites?.length || 0,
+      },
+    });
+  } catch (error) {
+    console.error('getUserStats error:', error);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 };
