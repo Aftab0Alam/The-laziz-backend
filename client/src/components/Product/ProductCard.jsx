@@ -5,7 +5,7 @@ import useCartStore from '../../store/cartStore';
 import useAuthStore from '../../store/authStore';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
-import { getDiscountPercent } from '../../utils/helpers';
+import { getDiscountPercent, getImageUrl } from '../../utils/helpers';
 
 const ProductCard = ({ product, size = 'default', offerPrice = null }) => {
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ const ProductCard = ({ product, size = 'default', offerPrice = null }) => {
   return (
     <div className="product-card" onClick={() => navigate(`/product/${product.slug}`)}>
       <div className="product-card-image">
-        <img src={product.imageUrl} alt={product.imageAlt || product.name} loading="lazy" />
+        <img src={getImageUrl(product.imageUrl)} alt={product.imageAlt || product.name} loading="lazy" />
         {hasOfferPrice && discount > 0
           ? <span className="product-card-badge" style={{ background: '#10b981' }}>{discount}% OFF</span>
           : product.isBestSeller && <span className="product-card-badge">Best Seller</span>

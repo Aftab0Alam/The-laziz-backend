@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getImageUrl } from '../../utils/helpers';
 
 const HeroSlider = ({ sliders = [] }) => {
   const [current, setCurrent] = useState(0);
@@ -57,7 +58,7 @@ const HeroSlider = ({ sliders = [] }) => {
       <div className="hero-track" style={{ transform: `translateX(-${current * 100}%)` }}>
         {sliders.map((s, idx) => (
           <div key={s._id || idx} className="hero-slide">
-            <img src={s.imageUrl} alt={s.title} loading={idx === 0 ? 'eager' : 'lazy'} />
+            <img src={getImageUrl(s.imageUrl)} alt={s.title} loading={idx === 0 ? 'eager' : 'lazy'} />
             <div className="hero-content">
               {s.subtitle && <div className="hero-tag">{s.subtitle}</div>}
               <div className="hero-title">

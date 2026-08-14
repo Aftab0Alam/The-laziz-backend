@@ -63,3 +63,21 @@ export const isRestaurantOpen = (settings) => {
   const closeMins = closeH * 60 + closeM;
   return nowMins >= openMins && nowMins <= closeMins;
 };
+
+/**
+ * Fixes image URLs that were seeded with localhost:5000.
+ * In production, replaces localhost origin with the real backend URL.
+ */
+const BACKEND_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+
+export const getImageUrl = (url) => {
+  if (!url) return '';
+  // If it's already a full external URL (Cloudinary, etc.), return as-is
+  if (url.startsWith('https://') && !url.includes('localhost')) return url;
+  // Replace localhost:5000 (or any localhost origin) with the real backend
+  if (url.includes('localhost')) {
+    return url.replace(/https?:\/\/localhost:\d+/, BACKEND_URL);
+  }
+  return url;
+};
+

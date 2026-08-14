@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+﻿import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Clock, Star, Flame, Sparkles, MessageCircle, UtensilsCrossed, Zap, Shield, Leaf } from 'lucide-react';
 import Header from '../components/Layout/Header';
@@ -6,9 +6,8 @@ import BottomNav from '../components/Layout/BottomNav';
 import HeroSlider from '../components/Slider/HeroSlider';
 import ProductCard from '../components/Product/ProductCard';
 import api from '../utils/api';
-import { getImageUrl } from '../utils/helpers';
 
-/* Hero Slider skeleton — fills space while slides load */
+/* Hero Slider skeleton ΓÇö fills space while slides load */
 const HeroSliderSkeleton = () => (
   <div className="skeleton" style={{ width: '100%', height: 180, borderRadius: 0 }} />
 );
@@ -73,10 +72,10 @@ const SectionHeader = ({ icon: Icon, iconBg, title, sub, linkText, onLink }) => 
 
 /* Why Choose Us items */
 const whyItems = [
-  { icon: '👨‍🍳', title: 'Expert Chefs', desc: 'Trained professionals with 10+ years experience' },
-  { icon: '🌿', title: 'Fresh Ingredients', desc: 'Sourced fresh every morning from local farms' },
-  { icon: '⚡', title: 'Quick Delivery', desc: 'Hot food at your door in 30–45 minutes' },
-  { icon: '💸', title: 'Best Prices', desc: 'Premium taste without burning your pocket' },
+  { icon: '≡ƒæ¿ΓÇì≡ƒì│', title: 'Expert Chefs', desc: 'Trained professionals with 10+ years experience' },
+  { icon: '≡ƒî┐', title: 'Fresh Ingredients', desc: 'Sourced fresh every morning from local farms' },
+  { icon: 'ΓÜí', title: 'Quick Delivery', desc: 'Hot food at your door in 30ΓÇô45 minutes' },
+  { icon: '≡ƒÆ╕', title: 'Best Prices', desc: 'Premium taste without burning your pocket' },
 ];
 
 /* Main Component */
@@ -127,73 +126,58 @@ const HomePage = () => {
 
         {/* Feature pills */}
         <div style={{ padding: '14px 16px', display: 'flex', gap: 10 }}>
-          <FeatureCard icon={Clock}           title="30–45 Min"   sub="Fast Delivery"   color="#E53935" bg="#fff5f5" />
+          <FeatureCard icon={Clock}           title="30ΓÇô45 Min"   sub="Fast Delivery"   color="#E53935" bg="#fff5f5" />
           <FeatureCard icon={Star}            title="4.8 Rated"   sub="Top Rated Food"  color="#F59E0B" bg="#fffbeb" />
           <FeatureCard icon={UtensilsCrossed} title="100% Fresh"  sub="Made to Order"   color="#10B981" bg="#f0fdf4" />
         </div>
 
-        {/* TODAY'S OFFER — always visible, always shows real products from backend */}
-        <section className="cs-offer-section">
-          <div className="cs-offer-banner">
-            <div className="cs-blob cs-blob-1" />
-            <div className="cs-blob cs-blob-2" />
-            <div className="cs-blob cs-blob-3" />
+        {/* TODAY'S OFFER cross-sell */}
+        {(crossSellData?.isActive && (crossSellData?.productIds?.length > 0 || csLoading)) && (
+          <section className="cs-offer-section">
+            <div className="cs-offer-banner">
+              <div className="cs-blob cs-blob-1" />
+              <div className="cs-blob cs-blob-2" />
+              <div className="cs-blob cs-blob-3" />
 
-            <div className="cs-offer-toprow">
-              <span className="cs-offer-badge">
-                <span className="cs-fire">🔥</span>
-                {crossSellData?.badgeLabel || 'HOT DEALS'}
-              </span>
-              <button className="cs-view-all" onClick={() => navigate('/offers')}>View All →</button>
-            </div>
-
-            {crossSellData?.discountLabel && (
-              <div className="cs-discount-pill">
-                <span className="cs-discount-amount">{crossSellData.discountLabel}</span>
-                <span className="cs-discount-off">OFF</span>
+              <div className="cs-offer-toprow">
+                <span className="cs-offer-badge">
+                  <span className="cs-fire">≡ƒöÑ</span>
+                  {crossSellData?.badgeLabel || 'LIMITED TIME'}
+                </span>
+                <button className="cs-view-all" onClick={() => navigate('/offers')}>View All ΓåÆ</button>
               </div>
-            )}
 
-            <h2 className="cs-offer-title">{crossSellData?.title || "Today's Special Offer"}</h2>
-            <p className="cs-offer-subtitle">{crossSellData?.subtitle || "Grab these deals before they're gone!"}</p>
+              {crossSellData?.discountLabel && (
+                <div className="cs-discount-pill">
+                  <span className="cs-discount-amount">{crossSellData.discountLabel}</span>
+                  <span className="cs-discount-off">OFF</span>
+                </div>
+              )}
 
-            <div className="cs-urgency-row">
-              <span className="cs-urgency-dot" />
-              <span className="cs-urgency-text">⚡ Hurry! Offer ends at midnight</span>
+              <h2 className="cs-offer-title">{crossSellData?.title || "Today's Special Offer"}</h2>
+              <p className="cs-offer-subtitle">{crossSellData?.subtitle || "Grab these deals before they're gone!"}</p>
+
+              <div className="cs-urgency-row">
+                <span className="cs-urgency-dot" />
+                <span className="cs-urgency-text">ΓÜí Hurry! Offer ends at midnight</span>
+              </div>
             </div>
-          </div>
 
-          {/* Real products — crossSell products if active, else best sellers as fallback */}
-          <div className="cs-offer-products hide-scrollbar">
-            {csLoading || bsLoading
-              ? [...Array(4)].map((_, i) => <ProductCardSkeleton key={i} />)
-              : (() => {
-                  const csProducts = crossSellData?.isActive
-                    ? (crossSellData?.productIds || crossSellData?.products || [])
-                    : [];
-                  const raw = csProducts.length > 0
-                    ? csProducts
-                    : (bestSellersData || []).slice(0, 8);
-                  // Deduplicate by _id to avoid React duplicate key warnings
-                  const seen = new Set();
-                  const displayProducts = raw.filter(p => {
-                    if (seen.has(p._id)) return false;
-                    seen.add(p._id);
-                    return true;
-                  });
-                  return displayProducts.map(p => (
-                    <ProductCard key={p._id} product={p} offerPrice={p.offerPrice || null} />
-                  ));
-                })()
-            }
-          </div>
+            <div className="cs-offer-products hide-scrollbar">
+              {csLoading
+                ? [...Array(4)].map((_, i) => <ProductCardSkeleton key={i} />)
+                : (crossSellData?.productIds || crossSellData?.products || []).map(p => (
+                    <ProductCard key={p._id} product={p} offerPrice={p.offerPrice} />
+                  ))}
+            </div>
 
-          <div style={{ padding: '0 16px 20px' }}>
-            <button className="cs-grab-btn" onClick={() => navigate('/offers')}>
-              🛍️ Grab This Offer Now
-            </button>
-          </div>
-        </section>
+            <div style={{ padding: '0 16px 20px' }}>
+              <button className="cs-grab-btn" onClick={() => navigate('/offers')}>
+                ≡ƒ¢ì∩╕Å Grab This Offer Now
+              </button>
+            </div>
+          </section>
+        )}
 
         {/* Categories */}
         <section style={{ background: 'white', marginBottom: 8 }}>
@@ -211,8 +195,8 @@ const HomePage = () => {
                 <div key={cat._id} className="category-card" onClick={() => navigate(`/menu?category=${cat.slug}`)}>
                   <div className="category-img-wrapper">
                     {cat.imageUrl
-                      ? <img src={getImageUrl(cat.imageUrl)} alt={cat.name} loading="lazy" decoding="async" />
-                      : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>🍽</div>
+                      ? <img src={cat.imageUrl} alt={cat.name} loading="lazy" decoding="async" />
+                      : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>≡ƒì╜</div>
                     }
                   </div>
                   <span className="category-name">{cat.name}</span>
@@ -246,14 +230,14 @@ const HomePage = () => {
           onClick={() => navigate('/menu')}
         >
           <div className="home-promo-left">
-            <div className="home-promo-eyebrow">🍽 Special Menu</div>
+            <div className="home-promo-eyebrow">≡ƒì╜ Special Menu</div>
             <div className="home-promo-title">Explore Our Full<br />Menu Collection</div>
             <div className="home-promo-sub">100+ dishes made fresh daily</div>
             <div className="home-promo-btn">
               Explore Now <ChevronRight size={14} />
             </div>
           </div>
-          <div className="home-promo-emoji">🍛</div>
+          <div className="home-promo-emoji">≡ƒì¢</div>
         </div>
 
         {/* Today's Special */}
@@ -314,7 +298,7 @@ const HomePage = () => {
 
         {/* Footer note */}
         <div style={{ textAlign: 'center', padding: '20px 16px 8px', color: '#bbb', fontSize: 11, fontWeight: 500 }}>
-          Made with ❤️ by Laziz Restaurant · All rights reserved
+          Made with Γ¥ñ∩╕Å by Laziz Restaurant ┬╖ All rights reserved
         </div>
       </div>
 
