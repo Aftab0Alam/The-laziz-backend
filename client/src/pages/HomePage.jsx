@@ -170,9 +170,16 @@ const HomePage = () => {
                   const csProducts = crossSellData?.isActive
                     ? (crossSellData?.productIds || crossSellData?.products || [])
                     : [];
-                  const displayProducts = csProducts.length > 0
+                  const raw = csProducts.length > 0
                     ? csProducts
                     : (bestSellersData || []).slice(0, 8);
+                  // Deduplicate by _id to avoid React duplicate key warnings
+                  const seen = new Set();
+                  const displayProducts = raw.filter(p => {
+                    if (seen.has(p._id)) return false;
+                    seen.add(p._id);
+                    return true;
+                  });
                   return displayProducts.map(p => (
                     <ProductCard key={p._id} product={p} offerPrice={p.offerPrice || null} />
                   ));

@@ -54,7 +54,14 @@ app.use(cors({
 const generalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: { success: false, message: 'Too many requests, please try again later.' } });
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { success: false, message: 'Too many auth attempts, please try again later.' } });
 
-app.use('/api/auth', authLimiter);
+// Strict rate limit ONLY on sensitive auth endpoints (login, signup, refresh, logout)
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/signup', authLimiter);
+app.use('/api/auth/refresh', authLimiter);
+app.use('/api/auth/logout', authLimiter);
+app.use('/api/auth/logout-all', authLimiter);
+app.use('/api/auth/change-password', authLimiter);
+// General limiter covers everything else (profile, stats, addresses, favourites, etc.)
 app.use('/api', generalLimiter);
 
 // Body Parsing

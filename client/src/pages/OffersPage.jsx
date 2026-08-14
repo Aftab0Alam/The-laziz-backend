@@ -102,13 +102,17 @@ const OffersPage = () => {
 
   const isLoading = csLoading || bsLoading;
 
-  // Decide which products to show
+  // Decide which products to show — deduplicate by _id
   const csProducts = crossSellData?.isActive
     ? (crossSellData?.productIds || crossSellData?.products || [])
     : [];
-  const displayProducts = csProducts.length > 0
-    ? csProducts
-    : (bestSellersData || []);
+  const raw = csProducts.length > 0 ? csProducts : (bestSellersData || []);
+  const seen = new Set();
+  const displayProducts = raw.filter(p => {
+    if (seen.has(p._id)) return false;
+    seen.add(p._id);
+    return true;
+  });
 
   const bannerTitle = crossSellData?.title || "Today's Best Deals";
   const bannerSubtitle = crossSellData?.subtitle || "Handpicked top sellers — add to cart and save big!";
