@@ -13,12 +13,22 @@ export default defineConfig({
       output: {
         // Split vendor libs into separate cached chunks so the browser can
         // load them in parallel and cache them independently from app code.
-        manualChunks: {
-          'react-vendor':  ['react', 'react-dom', 'react-router-dom'],
-          'query-vendor':  ['@tanstack/react-query'],
-          'ui-vendor':     ['lucide-react', 'react-hot-toast'],
-          'state-vendor':  ['zustand'],
-          'http-vendor':   ['axios'],
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/@tanstack/react-query')) {
+            return 'query-vendor';
+          }
+          if (id.includes('node_modules/lucide-react') || id.includes('node_modules/react-hot-toast')) {
+            return 'ui-vendor';
+          }
+          if (id.includes('node_modules/zustand')) {
+            return 'state-vendor';
+          }
+          if (id.includes('node_modules/axios')) {
+            return 'http-vendor';
+          }
         },
       },
     },
