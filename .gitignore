@@ -10,6 +10,9 @@ pnpm-debug.log*
 .env.*
 !.env.example
 !.env.sample
+# Allow production env files to be committed (needed for Render build)
+!.env.production
+!client/.env.production
 
 # ─── Logs ────────────────────────────────────────────────────────
 logs/
