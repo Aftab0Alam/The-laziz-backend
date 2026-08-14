@@ -113,7 +113,7 @@ const OffersPage = () => {
   const bannerTitle = crossSellData?.title || "Today's Best Deals";
   const bannerSubtitle = crossSellData?.subtitle || "Handpicked top sellers — add to cart and save big!";
   const badgeLabel = crossSellData?.badgeLabel || 'HOT DEALS';
-  const discountLabel = crossSellData?.discountLabel || 'UP TO 50%';
+  const discountLabel = crossSellData?.discountLabel || null;
 
   return (
     <div className="page-wrapper">
@@ -135,7 +135,10 @@ const OffersPage = () => {
               {badgeLabel}
             </div>
             <h1 className="op-hero-title-inline">
-              <span className="op-disc-inline">{discountLabel} OFF</span> — {bannerTitle}
+              {discountLabel
+                ? <><span className="op-disc-inline">{discountLabel} OFF</span> — {bannerTitle}</>
+                : <>🔥 {bannerTitle}</>
+              }
             </h1>
           </div>
 

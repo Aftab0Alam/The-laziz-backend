@@ -146,14 +146,9 @@ const HomePage = () => {
               <button className="cs-view-all" onClick={() => navigate('/offers')}>View All →</button>
             </div>
 
-            {(crossSellData?.discountLabel) ? (
+            {crossSellData?.discountLabel && (
               <div className="cs-discount-pill">
                 <span className="cs-discount-amount">{crossSellData.discountLabel}</span>
-                <span className="cs-discount-off">OFF</span>
-              </div>
-            ) : (
-              <div className="cs-discount-pill">
-                <span className="cs-discount-amount">UP TO 50%</span>
                 <span className="cs-discount-off">OFF</span>
               </div>
             )}
