@@ -131,38 +131,45 @@ const HomePage = () => {
           <FeatureCard icon={UtensilsCrossed} title="100% Fresh"  sub="Made to Order"   color="#10B981" bg="#f0fdf4" />
         </div>
 
-        {/* TODAY'S OFFER cross-sell */}
-        {(crossSellData?.isActive && (crossSellData?.productIds?.length > 0 || csLoading)) && (
-          <section className="cs-offer-section">
-            <div className="cs-offer-banner">
-              <div className="cs-blob cs-blob-1" />
-              <div className="cs-blob cs-blob-2" />
-              <div className="cs-blob cs-blob-3" />
+        {/* TODAY'S OFFER — always visible, uses live data if available */}
+        <section className="cs-offer-section">
+          <div className="cs-offer-banner">
+            <div className="cs-blob cs-blob-1" />
+            <div className="cs-blob cs-blob-2" />
+            <div className="cs-blob cs-blob-3" />
 
-              <div className="cs-offer-toprow">
-                <span className="cs-offer-badge">
-                  <span className="cs-fire">🔥</span>
-                  {crossSellData?.badgeLabel || 'LIMITED TIME'}
-                </span>
-                <button className="cs-view-all" onClick={() => navigate('/offers')}>View All →</button>
-              </div>
-
-              {crossSellData?.discountLabel && (
-                <div className="cs-discount-pill">
-                  <span className="cs-discount-amount">{crossSellData.discountLabel}</span>
-                  <span className="cs-discount-off">OFF</span>
-                </div>
-              )}
-
-              <h2 className="cs-offer-title">{crossSellData?.title || "Today's Special Offer"}</h2>
-              <p className="cs-offer-subtitle">{crossSellData?.subtitle || "Grab these deals before they're gone!"}</p>
-
-              <div className="cs-urgency-row">
-                <span className="cs-urgency-dot" />
-                <span className="cs-urgency-text">⚡ Hurry! Offer ends at midnight</span>
-              </div>
+            <div className="cs-offer-toprow">
+              <span className="cs-offer-badge">
+                <span className="cs-fire">🔥</span>
+                {crossSellData?.badgeLabel || 'LIMITED TIME'}
+              </span>
+              <button className="cs-view-all" onClick={() => navigate('/offers')}>View All →</button>
             </div>
 
+            {crossSellData?.discountLabel && (
+              <div className="cs-discount-pill">
+                <span className="cs-discount-amount">{crossSellData.discountLabel}</span>
+                <span className="cs-discount-off">OFF</span>
+              </div>
+            )}
+            {!crossSellData?.discountLabel && (
+              <div className="cs-discount-pill">
+                <span className="cs-discount-amount">UP TO 50%</span>
+                <span className="cs-discount-off">OFF</span>
+              </div>
+            )}
+
+            <h2 className="cs-offer-title">{crossSellData?.title || "Today's Special Offer"}</h2>
+            <p className="cs-offer-subtitle">{crossSellData?.subtitle || "Grab these deals before they're gone!"}</p>
+
+            <div className="cs-urgency-row">
+              <span className="cs-urgency-dot" />
+              <span className="cs-urgency-text">⚡ Hurry! Offer ends at midnight</span>
+            </div>
+          </div>
+
+          {/* Product scroll — only if crossSell is active with products */}
+          {(crossSellData?.isActive && (crossSellData?.productIds?.length > 0 || csLoading)) && (
             <div className="cs-offer-products hide-scrollbar">
               {csLoading
                 ? [...Array(4)].map((_, i) => <ProductCardSkeleton key={i} />)
@@ -170,14 +177,14 @@ const HomePage = () => {
                     <ProductCard key={p._id} product={p} offerPrice={p.offerPrice} />
                   ))}
             </div>
+          )}
 
-            <div style={{ padding: '0 16px 20px' }}>
-              <button className="cs-grab-btn" onClick={() => navigate('/offers')}>
-                🛍️ Grab This Offer Now
-              </button>
-            </div>
-          </section>
-        )}
+          <div style={{ padding: '0 16px 20px' }}>
+            <button className="cs-grab-btn" onClick={() => navigate('/offers')}>
+              🛍️ Grab This Offer Now
+            </button>
+          </div>
+        </section>
 
         {/* Categories */}
         <section style={{ background: 'white', marginBottom: 8 }}>
