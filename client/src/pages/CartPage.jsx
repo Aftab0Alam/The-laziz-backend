@@ -1,4 +1,5 @@
-﻿import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { getImageUrl } from '../utils/helpers';
 import { ArrowLeft, Trash2, ShoppingBag, MessageCircle, Plus, Minus, ChevronRight, Tag } from 'lucide-react';
 import useCartStore from '../store/cartStore';
 import BottomNav from '../components/Layout/BottomNav';
@@ -75,7 +76,7 @@ const CartPage = () => {
                 <div key={item.productId} className="cart-item-card">
                   <div className="cart-item-img">
                     {item.imageUrl
-                      ? <img src={item.imageUrl} alt={item.name} loading="lazy" />
+                      ? <img src={getImageUrl(item.imageUrl)} alt={item.name} loading="lazy" />
                       : <div className="cart-item-img-ph">🍽</div>}
                   </div>
                   <div className="cart-item-details">

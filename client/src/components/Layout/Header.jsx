@@ -4,6 +4,7 @@ import { Menu, ShoppingCart, Search, X, MapPin } from 'lucide-react';
 import useCartStore from '../../store/cartStore';
 import useAuthStore from '../../store/authStore';
 import api from '../../utils/api';
+import { getImageUrl } from '../../utils/helpers';
 
 const RECENT_KEY = 'laziz_recent_searches';
 const getRecents = () => JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
@@ -152,7 +153,7 @@ const Header = () => {
                     {loading && <div style={{ padding: '10px 16px', fontSize: 12, color: '#999' }}>Searching…</div>}
                     {results.map(product => (
                       <div key={product._id} className="search-result-item" onClick={() => handleSelect(product)}>
-                        <img src={product.imageUrl} alt={product.name} className="search-result-img" loading="lazy" />
+                        <img src={getImageUrl(product.imageUrl)} alt={product.name} className="search-result-img" loading="lazy" />
                         <div className="search-result-info">
                           <div className="search-result-name">{product.name}</div>
                           <div className="search-result-cat">{product.categoryId?.name}</div>

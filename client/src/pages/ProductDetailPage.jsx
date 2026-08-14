@@ -8,7 +8,7 @@ import BottomNav from '../components/Layout/BottomNav';
 import ProductCard from '../components/Product/ProductCard';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
-import { getDiscountPercent } from '../utils/helpers';
+import { getDiscountPercent, getImageUrl } from '../utils/helpers';
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
@@ -79,7 +79,7 @@ const ProductDetailPage = () => {
       <div style={{ paddingTop: 60, paddingBottom: 100 }}>
         {/* Image */}
         <div className="product-detail-image">
-          <img src={product.imageUrl} alt={product.imageAlt || product.name} />
+          <img src={getImageUrl(product.imageUrl)} alt={product.imageAlt || product.name} />
         </div>
 
         {/* Body */}
