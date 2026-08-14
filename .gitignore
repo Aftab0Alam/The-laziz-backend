@@ -48,6 +48,7 @@ ehthumbs.db
 *.sln
 *.sw?
 
+<<<<<<< HEAD
 # ─── Coverage / testing ──────────────────────────────────────────
 coverage/
 .nyc_output/
@@ -56,3 +57,6 @@ coverage/
 *.local
 .eslintcache
 .stylelintcache
+=======
+node_modules/
+>>>>>>> 247ce2b (Stop tracking node_modules)
